@@ -4,7 +4,6 @@ import os
 import io
 import zipfile
 import queue
-import threading
 
 app = Flask(__name__)
 
@@ -67,9 +66,12 @@ def get_file(machine, filename):
     safe_path = safe_join(BASE_DIR, machine)
     if safe_path is None:
         abort(404)
+
     full_path = os.path.join(safe_path, filename)
     if not os.path.exists(full_path):
         abort(404)
+
+    # Serve safely
     return send_from_directory(safe_path, filename, as_attachment=False)
 
 # --- Web Interface ---
@@ -88,6 +90,7 @@ def index():
             machines_data[machine] = files
     return render_template("index.html", machines=machines_data)
 
+# --- Entry Point ---
 if __name__ == "__main__":
     print("🚀 Server starting at http://0.0.0.0:5000")
     app.run(host="0.0.0.0", port=5000, debug=True, threaded=True)

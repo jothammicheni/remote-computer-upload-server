@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>VM Folder Sync</title>
+    <style>
+        body { font-family: Arial; background: #f4f4f4; padding: 20px; }
+        h1 { color: #333; }
+        ul { list-style: none; padding-left: 0; }
+        li { margin: 5px 0; }
+        a { color: #007bff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .log { background: #fff; padding: 10px; border: 1px solid #ccc; margin-top: 20px; max-height: 300px; overflow-y: scroll; }
+    </style>
+</head>
+<body>
+    <h1>Uploaded Folders by Machine</h1>
+
+    <div class="log" id="log"></div>
+
+    {% if machines %}
+        {% for machine, files in machines.items() %}
+            <h2>{{ machine }}</h2>
+            {% if files %}
+                <ul>
+                    {% for file in files %}
+                        <li>
+                            <a href="{{ url_for('get_file', machine=machine, filename=file) }}" target="_blank">
+                                {{ file }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p><em>No files uploaded yet.</em></p>
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        <p><em>No machines uploaded yet.</em></p>
+    {% endif %}
+
+<script>
+    {% for machine in machines %}
+        var evtSource{{ loop.index }} = new EventSource("/events/{{ machine }}");
+        evtSource{{ loop.index }}.onmessage = function(e) {
+            const logDiv = document.getElementById("log");
+            logDiv.innerHTML += e.data + "<br>";
+            logDiv.scrollTop = logDiv.scrollHeight;
+        };
+    {% endfor %}
+</script>
+</body>
+</html>

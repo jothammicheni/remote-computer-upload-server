@@ -1,0 +1,3 @@
+Flask==2.3.3                  # Web server & interface
+requests==2.32.1              # HTTP requests from VMs
+gunicorn==21.2.0              # Production server (for hosting, e.g., Vercel or Render)

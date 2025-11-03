@@ -1,0 +1,18 @@
+[2025-11-03T15:55:15.139605Z] Server starting, listening on 0.0.0.0:5000
+[2025-11-03T15:55:18.508537Z] Server starting, listening on 0.0.0.0:5000
+[2025-11-03T15:55:24.132227Z] Server starting, listening on 0.0.0.0:5000
+[2025-11-03T15:55:24.631697Z] Server starting, listening on 0.0.0.0:5000
+[2025-11-03T15:55:57.307148Z] CONNECTED: DESKTOP-PQLRA95 -> sanitized 'DESKTOP-PQLRA95' from 192.168.0.104 (no-hostname)
+[2025-11-03T15:55:57.307631Z] RECEIVING: DESKTOP-PQLRA95 from 192.168.0.104 - file field name: 3D Objects.zip
+[2025-11-03T15:55:57.325084Z] SKIPPED suspicious entry in zip from DESKTOP-PQLRA95: new created folder/DOC-20250428-WA0021..pdf
+[2025-11-03T15:55:57.405205Z] UPLOADED: 3D Objects.zip -> uploaded_folders/DESKTOP-PQLRA95 (from DESKTOP-PQLRA95 / 192.168.0.104)
+[2025-11-03T16:01:51.832819Z] Server starting, listening on 0.0.0.0:5000
+[2025-11-03T16:01:52.084679Z] Server starting, listening on 0.0.0.0:5000
+[2025-11-03T16:04:19.917850Z] CONNECTED: DESKTOP-PQLRA95 -> sanitized 'DESKTOP-PQLRA95' from 192.168.0.113 (no-hostname)
+[2025-11-03T16:04:19.918213Z] RECEIVING: DESKTOP-PQLRA95 from 192.168.0.113 - file field name: 3D Objects.zip
+[2025-11-03T16:04:19.934590Z] SKIPPED suspicious entry in zip from DESKTOP-PQLRA95: new created folder/DOC-20250428-WA0021..pdf
+[2025-11-03T16:04:20.023866Z] UPLOADED: 3D Objects.zip -> uploaded_folders/DESKTOP-PQLRA95 (from DESKTOP-PQLRA95 / 192.168.0.113)
+[2025-11-03T16:07:22.551662Z] CONNECTED: DESKTOP-PQLRA95 -> sanitized 'DESKTOP-PQLRA95' from 192.168.0.104 (no-hostname)
+[2025-11-03T16:07:22.551879Z] RECEIVING: DESKTOP-PQLRA95 from 192.168.0.104 - file field name: 3D Objects.zip
+[2025-11-03T16:07:22.567168Z] SKIPPED suspicious entry in zip from DESKTOP-PQLRA95: new created folder/DOC-20250428-WA0021..pdf
+[2025-11-03T16:07:22.655743Z] UPLOADED: 3D Objects.zip -> uploaded_folders/DESKTOP-PQLRA95 (from DESKTOP-PQLRA95 / 192.168.0.104)

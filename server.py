@@ -1,9 +1,10 @@
-from flask import Flask, request, render_template, Response, stream_with_context, send_from_directory, abort
+from flask import Flask, request, Response, render_template, stream_with_context, send_from_directory, abort
 from werkzeug.utils import safe_join
 import os
 import io
 import zipfile
 import queue
+from functools import wraps
 
 app = Flask(__name__)
 
@@ -15,25 +16,47 @@ os.makedirs(BASE_DIR, exist_ok=True)
 message_queues = {}  # { machine_name: Queue() }
 
 def send_message(machine, message):
-    """Send a message to a specific machine's SSE stream."""
     q = message_queues.setdefault(machine, queue.Queue())
     q.put(message)
 
-# --- SSE endpoint ---
+# ========== SIMPLE BASIC AUTH (NO SESSIONS) ==========
+
+USERNAME = "admin@1234"
+PASSWORD = "password@admin"
+
+def check_auth(username, password):
+    return username == USERNAME and password == PASSWORD
+
+def authenticate():
+    return Response(
+        "Login Required", 401,
+        {"WWW-Authenticate": 'Basic realm="Admin Area"'}
+    )
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
+# ========== SSE ENDPOINT ==========
 @app.route("/events/<machine>")
+@requires_auth
 def sse(machine):
-    """Server-Sent Events stream for live updates per machine."""
     def event_stream():
         q = message_queues.setdefault(machine, queue.Queue())
         while True:
-            msg = q.get()  # wait for next message
+            msg = q.get()
             yield f"data: {msg}\n\n"
     return Response(stream_with_context(event_stream()), mimetype="text/event-stream")
 
-# --- Upload endpoint ---
+# ========== UPLOAD ENDPOINT ==========
 @app.route("/upload", methods=["POST"])
+@requires_auth
 def upload():
-    """Receive a zipped folder from the client and extract it."""
     machine_name = request.form.get("machine", "unknown")
     uploaded_file = request.files.get("file")
 
@@ -43,11 +66,9 @@ def upload():
     send_message(machine_name, f"📡 Connected to client ({machine_name})")
     send_message(machine_name, "📦 Receiving file...")
 
-    # Create per-machine directory
     machine_dir = os.path.join(BASE_DIR, machine_name)
     os.makedirs(machine_dir, exist_ok=True)
 
-    # Read zip bytes and extract safely
     zip_bytes = io.BytesIO(uploaded_file.read())
     try:
         with zipfile.ZipFile(zip_bytes) as zf:
@@ -59,10 +80,10 @@ def upload():
     send_message(machine_name, f"✅ Upload complete: {uploaded_file.filename}")
     return f"Uploaded {uploaded_file.filename} to {machine_dir}"
 
-# --- File-serving endpoint ---
+# ========== FILE SERVING ==========
 @app.route("/files/<machine>/<path:filename>")
+@requires_auth
 def get_file(machine, filename):
-    """Serve individual files for viewing or download."""
     safe_path = safe_join(BASE_DIR, machine)
     if safe_path is None:
         abort(404)
@@ -71,13 +92,12 @@ def get_file(machine, filename):
     if not os.path.exists(full_path):
         abort(404)
 
-    # Serve safely
     return send_from_directory(safe_path, filename, as_attachment=False)
 
-# --- Web Interface ---
+# ========== DASHBOARD ==========
 @app.route("/")
+@requires_auth
 def index():
-    """Main dashboard showing all uploaded machines and their files."""
     machines_data = {}
     for machine in os.listdir(BASE_DIR):
         machine_path = os.path.join(BASE_DIR, machine)
@@ -90,7 +110,7 @@ def index():
             machines_data[machine] = files
     return render_template("index.html", machines=machines_data)
 
-# --- Entry Point ---
+# ========== ENTRY POINT ==========
 if __name__ == "__main__":
-    print("🚀 Server starting at http://0.0.0.0:5000")
+    print("🚀 Server running on http://0.0.0.0:5000")
     app.run(host="0.0.0.0", port=5000, debug=True, threaded=True)
